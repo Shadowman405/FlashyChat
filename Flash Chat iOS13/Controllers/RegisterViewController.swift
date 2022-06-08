@@ -28,6 +28,7 @@ class RegisterViewController: UIViewController {
  }
 }
 
+//MARK: - Extensions
 
 extension RegisterViewController {
     func showAlert(title: String) {
