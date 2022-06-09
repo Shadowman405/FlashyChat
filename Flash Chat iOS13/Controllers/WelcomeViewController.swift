@@ -21,7 +21,7 @@ class WelcomeViewController: UIViewController {
     
     
     func updateTitleLabel() {
-        titleLabel.text = "⚡️FlashChat"
+        titleLabel.text = K.appName
     }
 
 }
