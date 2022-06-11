@@ -11,12 +11,7 @@ import Firebase
 
 class ChatViewController: UIViewController {
     
-    var messages: [Message] = [
-        Message(sender: "1@2.com", body: "Sosi pes"),
-        Message(sender: "UncleBogdan@bebra.ru", body: "Do you like what you see slave??"),
-        Message(sender: "Vansama@gmail.com", body: "Hoi-hoi-hoi , Im fckng cumming")
-    ]
-    
+    var messages: [Message] = []
     let db = Firestore.firestore()
 
     @IBOutlet weak var tableView: UITableView!
@@ -30,7 +25,9 @@ class ChatViewController: UIViewController {
         title = K.appName
         
         tableView.register(UINib(nibName: K.cellNibName, bundle: nil), forCellReuseIdentifier: K.cellIdentifier)
+        loadMessages()
     }
+    
     
     @IBAction func sendPressed(_ sender: UIButton) {
         if let messageBody = messageTextfield.text, let messageSender = Auth.auth().currentUser?.email {
@@ -52,8 +49,10 @@ class ChatViewController: UIViewController {
                     print("Error signing out: %@", signOutError)
                 }
         }
-    
 }
+
+
+// MARK: - Extensions
 
 extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -65,6 +64,30 @@ extension ChatViewController: UITableViewDataSource, UITableViewDelegate {
         cell.title.text = messages[indexPath.row].body
         
         return cell
+    }
+    
+    func loadMessages() {
+        messages = []
+        
+        db.collection(K.FStore.collectionName).getDocuments { querySnapshot, error in
+            if let error = error {
+                print(error.localizedDescription)
+            } else {
+                if let snapshotDocs = querySnapshot?.documents {
+                    for document in snapshotDocs {
+                        let data = document.data()
+                        if let sender = data[K.FStore.senderField] as? String, let messageBody = data[K.FStore.bodyField] as? String {
+                            let newMessage = Message(sender: sender, body: messageBody)
+                            self.messages.append(newMessage)
+                            
+                            DispatchQueue.main.async {
+                                self.tableView.reloadData()
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
 }
