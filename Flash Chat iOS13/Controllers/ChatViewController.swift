@@ -37,7 +37,9 @@ class ChatViewController: UIViewController {
                 if let error = error {
                     print(error.localizedDescription)
                 } else {
-                        print("Data saved")
+                    DispatchQueue.main.async {
+                        self.messageTextfield.text = ""
+                    }
                 }
             }
         }
